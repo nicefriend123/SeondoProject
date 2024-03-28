@@ -1,80 +1,340 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html lang="ko">
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>브이월드 오픈API</title>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
-<!-- OpenLayer -->
-<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.15.1/build/ol.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v6.15.1/ol.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>브이월드 WMTS 배경지도 사용하기 오픈레이어스 3버전 이상</title>
+<!-- Core theme CSS (includes Bootstrap)-->
+<link href="css/styles.css" rel="stylesheet" />
+<link href="css/board.css?ver=0.01" rel="stylesheet" />
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+	integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+<script type="text/javascript">
+	$(function() {
+		var Base = new ol.layer.Tile(
+				{name : "Base",
+				source : new ol.source.XYZ(
+							{url : 'https://api.vworld.kr/req/wmts/1.0.0/00B30A76-519C-3E71-8784-D4F39CD26CFB/Base/{z}/{y}/{x}.png'
+							})
+				}); // WMTS API 사용
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		var view = new ol.View({
+			center : ol.proj.transform([ 127.100616, 37.402142 ], 'EPSG:4326',
+					'EPSG:3857'),
+			zoom : 6,
+			maxZoom : 18,
+			minZoom : 4
+		});
+
+		var map = new ol.Map({
+			layers : [ Base ],
+			target : 'map',
+			view : view,
+		});
+			  
+		//시도 레이어 띄우기 및 시군구 옵션 띄우기
+		$('#loc').change(function() {
+							var loc = $(this).val();
+							var locTest = loc.split(",");
+							var sdCd = locTest[0];
+							var sdX = locTest[1];
+							var sdY = locTest[2];
+							var sdArea = locTest[3];
+							var center = ol.proj.transform([parseFloat(sdX), parseFloat(sdY)], 'EPSG:4326', 'EPSG:3857');
+							map.getView().setCenter(center);
+							if (sdArea < 2000) {
+								map.getView().setZoom(10);
+							} else if (sdArea < 10000){
+								map.getView().setZoom(9);
+							} else if (sdArea < 20000){
+								map.getView().setZoom(8);
+							}
+							//alert('코드: ' + sdCd + ' X: ' + sdX + ' Y: ' + sdY);
+							var cql_filter = "sd_cd = '" + sdCd + "'";
+							$('#bjdSelect').children().remove();
+						    $('#bjdSelect').append('<option>--법정동을 선택하세요--</option>');
+							//alert(loc);
+							$.ajax({
+										type : "post", // 또는 "GET", 요청 방식 선택
+										url : "/sd.do", // 컨트롤러의 URL 입력
+										data : {"sd" : sdCd}, // 선택된 값 전송
+										dataType : 'json',
+										success : function(response) {
+											//alert('AJAX 요청 성공!' + response);
+											var sggSelect = $("#sggSelect");
+											sggSelect.html("<option>--시/군/구를 선택하세요--</option>");
+											for (var i = 0; i < response.length; i++) {
+												var item = response[i];
+												sggSelect.append("<option value='" + item.adm_sect_c + "," + item.x + "," + item.y + ","+ item.area +  "'>"
+																+ item.sgg_nm
+																+ "</option>");
+											}
+											//map.getView().fit((ol.proj.transform([response[0].xmax, response[0].ymax, response[0].xmin, response[0].ymin], 'EPSG:4326', 'EPSG:3857')));
+										},
+										error : function(xhr, status, error) {
+											// 에러 발생 시 수행할 작업
+											alert(xhr + "::::::" + error
+													+ 'ajax 실패' + sdCd + ","
+													+ sggSelect);
+											// console.error("AJAX 요청 실패:", error);
+										}
+									});
+							// 기존에 추가되었던 레이어들을 숨깁니다.
+							map.getLayers().forEach(function(layer) {
+								if (layer.get('name') !== 'Base') { // 기본 배경 레이어는 숨기지 않습니다.
+									layer.setVisible(false);
+								}
+							});
+
+							// 선택된 새로운 레이어를 추가하고 보이도록 설정합니다.
+							var tl_sd = new ol.layer.Tile(
+									{
+										name : 'selectedLayer', // 선택된 레이어의 이름을 지정합니다.
+										visible : true,
+										source : new ol.source.TileWMS(
+												{
+													url : 'http://localhost:8080/geoserver/Project_nk/wms',
+													params : {
+														'version' : '1.1.0',
+														'request' : 'GetMap',
+														'CQL_FILTER' : cql_filter,
+														'layers' : 'Project_nk:tl_sd',
+														'bbox' : [
+																1.3871489341071218E7,
+																3910407.083927817,
+																1.4680011171788167E7,
+																4666488.829376997 ],
+														'width' : '768',
+														'height' : '718',
+														'srs' : 'EPSG:3857',
+														'format' : 'image/png'
+													},
+													serverType : 'geoserver',
+												})
+									});
+							map.addLayer(tl_sd);
+						});
+		//시군구 레이어 띄우고 법정동 옵션 띄우기
+		$('#sggSelect').change(function() {
+							var sggSelect = $(this).val();
+							var sggSelectVal = sggSelect.split(",");
+							var sggCd = sggSelectVal[0];
+							var sggX = sggSelectVal[1];
+							var sggY = sggSelectVal[2];
+							var sggArea = sggSelectVal[3];
+							var center = ol.proj.transform([parseFloat(sggX), parseFloat(sggY)], 'EPSG:4326', 'EPSG:3857');
+							map.getView().setCenter(center);
+							if (sggArea < 2000) {
+								map.getView().setZoom(10);
+							} else if (sggArea < 10000){
+								map.getView().setZoom(9);
+							} else if (sggArea < 20000){
+								map.getView().setZoom(8);
+							}
+							var cql_filter2 = "adm_sect_c = '" + sggCd + "'";
+							//alert(sggSelect);
+							$.ajax({
+										type : "post",
+										url : "/sgg.do",
+										data : {"sgg" : sggCd},
+										dataType : 'json',
+										success : function(response) {
+											//alert('AJAX 요청 성공!' + response + length);
+											var bjdSelect = $("#bjdSelect");
+											bjdSelect.html("<option>--법정동을 선택하세요--</option>");
+											for (var i = 0; i < response.length; i++) {
+												var item1 = response[i];
+												bjdSelect.append("<option value='" + item1.bjd_cd + "," + item1.x + "," + item1.y + "'>"
+																+ item1.bjd_nm
+																+ "</option>");
+											}
+										},
+										error : function(xhr, status, error) {
+											alert(xhr + "::::::" + error
+													+ 'ajax 실패' + sggSelectVal + ","
+													+ sggSelect);
+											// console.error("AJAX 요청 실패:", error);
+										}
+									});
+
+							var tl_sgg = new ol.layer.Tile(
+									{
+										name : 'selectedLayer',
+										visible : true,
+										source : new ol.source.TileWMS(
+												{
+													url : 'http://localhost:8080/geoserver/Project_nk/wms',
+													params : {
+														'version' : '1.1.0',
+														'request' : 'GetMap',
+														'CQL_FILTER' : cql_filter2,
+														'layers' : 'Project_nk:a5sggview',
+														'bbox' : [ 1.3867446E7,
+																3906626.5,
+																1.4684053E7,
+																4670269.5 ],
+														'width' : '768',
+														'height' : '718',
+														'srs' : 'EPSG:3857',
+														'format' : 'image/png'
+													},
+													serverType : 'geoserver',
+												})
+									});
+							map.addLayer(tl_sgg);
+						}); // $('#sggSelect').change
+
+		//법정동 옵션 띄우고 법정동 레이어 띄우기
+		$('#bjdSelect').change(function() {
+							var bjdSelect = $(this).val();
+							var bjdSelectVal = bjdSelect.split(",");
+							var bjdCd = bjdSelectVal[0];
+							var bjdX = bjdSelectVal[1];
+							var bjdY = bjdSelectVal[2];
+							var center = ol.proj.transform([parseFloat(bjdX), parseFloat(bjdY)], 'EPSG:4326', 'EPSG:3857');
+							map.getView().setCenter(center);
+							map.getView().setZoom(12);
+							var cql_filter3 = "bjd_cd = '" + bjdCd + "'";
+							var tl_bjd = new ol.layer.Tile(
+									{
+										name : 'selectedLayer',
+										visible : true,
+										source : new ol.source.TileWMS(
+												{
+													url : 'http://localhost:8080/geoserver/Project_nk/wms',
+													params : {
+														'version' : '1.1.0',
+														'request' : 'GetMap',
+														'CQL_FILTER' : cql_filter3,
+														'layers' : 'Project_nk:a5bjdview',
+														'bbox' : [ 1.3873946E7,
+																3906626.5,
+																1.4428045E7,
+																4670269.5 ],
+														'width' : '557',
+														'height' : '768',
+														'srs' : 'EPSG:3857',
+														'format' : 'image/png'
+													},
+													serverType : 'geoserver',
+												})
+									});
+							map.addLayer(tl_bjd);
+						}); // $('#bjdSelect').change
+	});
+</script>
+</head>
 <style>
-.map {
-   height: 800px;
-   width: 100%;
+.container {
+	border: 1px solid black;
+	width: 75%;
+}
+
+.main {
+	border: 1px solid black;
+	display: flex;
+	margin: 5px;
+}
+
+.subcontainer {
+	
+}
+
+.two {
+	display: flex;
+	margin: 5px;
+}
+
+.header {
+	background: gray;
+	color: white;
+	text-align: center;
+	margin: 5px;
+}
+
+.footer {
+	background: gray;
+	color: white;
+	text-align: center;
+	margin: 5px;
+}
+
+.sub-main{
+	margin: 5px;
+	width: 50%;
+	text-align: center;
+	border: 1px solid black;
+}
+.function {
+    display: flex; /* Flexbox 사용 */
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.nav{
+	border-right: 1px solid black;
+}
+
+.function .nav,
+.function .select {
+    flex: 1;
+}
+
+#map{
 }
 </style>
-<script type="text/javascript">
-$(document).ready(function() {
-    let map = new ol.Map(
-        { // OpenLayer의 맵 객체를 생성한다.
-          target : 'map', // 맵 객체를 연결하기 위한 target으로 <div>의 id값을 지정해준다.
-          layers : [ // 지도에서 사용 할 레이어의 목록을 정희하는 공간이다.
-          new ol.layer.Tile(
-              {
-                source : new ol.source.OSM(
-                    {
-                     // url : 'http://api.vworld.kr/req/wmts/1.0.0/88840D39-A1E3-37E0-8508-EA3D0238A271/midnight/{z}/{y}/{x}.png'
-                    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png' // vworld의 지도를 가져온다.
-                    })
-              }) ],
-          view : new ol.View({ // 지도가 보여 줄 중심좌표, 축소, 확대 등을 설정한다. 보통은 줌, 중심좌표를 설정하는 경우가 많다.
-            center : ol.proj.fromLonLat([ 127.8, 36.2 ]),
-            zoom : 8
-          })
-        });
-
-    let bjdLayer = new ol.layer.Tile({
-      source : new ol.source.TileWMS({
-        url : 'http://localhost:8080/geoserver/carbon/wms?service=WMS', // 1. 레이어 URL
-        params : {
-          'VERSION' : '1.1.0', // 2. 버전
-          'LAYERS' : 'carbon:tl_bjd', // 3. 작업공간:레이어 명
-          'BBOX' : [1.4184269003753535E7 ,1.4307652964599207E7, 4303168.337414677, 4426552.298260351],
-          'SRS' : 'EPSG:3857', // SRID
-          'FORMAT' : 'image/png' // 포맷
-        },
-        serverType : 'geoserver',
-      })
-    });
-
-    let sdLayer = new ol.layer.Tile({
-      source : new ol.source.TileWMS({
-        url : 'http://localhost:8080/geoserver/carbon/wms?service=WMS', // 1. 레이어 URL
-        params : {
-          'VERSION' : '1.1.0', // 2. 버전
-          'LAYERS' : 'carbon:tl_sd', // 3. 작업공간:레이어 명
-          /* 'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], */
-          'BBOX' : [1.419587442581328E7, 1.4319258386658952E7,4330044.05165829, 4453428.012503964],
-          'SRS' : 'EPSG:3857', // SRID
-          'FORMAT' : 'image/png' // 포맷
-        },
-        serverType : 'geoserver',
-      })
-    });
-    map.addLayer(sdLayer);
-    map.addLayer(bjdLayer); 
-});
-</script>
-
-</head>
 <body>
-
-<div id="map" class="map"></div>
+	<div class="container">
+		<header class="header">Header</header>
+		<div class="two">메인화면</div>
+		<div class="sub-container">
+			<div class="main">
+				<div class = "sub-main">
+					탄소공간지도시스템
+					<div class= "function">
+						<nav class = "nav">
+						<%@ include file="menu.jsp"%>
+						</nav>
+						<div class="select">
+							<div>
+								<select id="loc" name="loc">
+									<option>시/도 선택</option>
+									<c:forEach items="${getSd}" var="row">
+										<option value="${row.sd_cd},${row.x},${row.y},${row.area}">${row.sd_nm}</option>
+									</c:forEach>
+								</select>
+							</div>
+							<div>
+								<select id="sggSelect">
+									<option>--시/군/구를 선택하세요--</option>
+								</select>
+							</div>
+							<div>
+								<select id="bjdSelect">
+									<option>--법정동을 선택하세요--</option>
+								</select>
+							</div>
+							<div>
+								<select id="legend">
+									<option>--범례를 선택하세요--</option>
+									<option>등간격</option>
+									<option>Natural Break</option>
+								</select>
+							</div>
+							<button>검색</button>
+						</div>
+					</div>
+				</div>
+				<div id="map" style="width: 60%; height: 800px;"></div>
+			</div>
+		</div>
+<footer class="footer">footer</footer>
+	</div>
 </body>
 </html>

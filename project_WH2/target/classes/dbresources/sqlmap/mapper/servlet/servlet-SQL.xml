@@ -12,4 +12,37 @@
 				1=1
 		]]>
 	</select>
+
+	<select id="getSd" resultType="Map">
+		SELECT sd_nm, sd_cd,
+		ST_X(ST_TRANSFORM(ST_CENTROID(GEOM), 4326)) as x,
+		ST_Y(ST_TRANSFORM(ST_CENTROID(GEOM), 4326)) as y,
+		trunc(ST_AREA(ST_TRANSFORM(GEOM, 4326)) * 10000) as area
+		FROM tl_sd;
+	</select>
+
+	<select id="sgg" parameterType="String" resultType="Map">
+		SELECT
+		REPLACE(g.sgg_nm, CONCAT(s.sd_nm, ' '), '') AS
+		sgg_nm, g.sgg_cd,
+		g.adm_sect_c,
+		ST_X(ST_TRANSFORM(ST_CENTROID(g.GEOM), 4326)) as x,
+		ST_Y(ST_TRANSFORM(ST_CENTROID(g.GEOM), 4326)) as y,
+		trunc(ST_AREA(ST_TRANSFORM(g.GEOM, 4326)) * 100000) as area
+		FROM tl_sd s
+		JOIN
+		tl_sgg g ON (s.sd_nm = g.sd_nm)
+		WHERE s.sd_cd = #{sd};
+	</select>
+
+	<select id="bjd" parameterType="String" resultType="Map">
+		SELECT
+		bjd_nm, bjd_cd, 
+		ST_X(ST_TRANSFORM(ST_CENTROID(b.GEOM), 4326)) as x,
+		ST_Y(ST_TRANSFORM(ST_CENTROID(b.GEOM), 4326)) as y
+		FROM tl_bjd b
+		JOIN
+		tl_sgg s ON b.sgg_cd = s.sgg_cd
+		WHERE s.sgg_cd = #{sgg};
+	</select>
 </mapper>

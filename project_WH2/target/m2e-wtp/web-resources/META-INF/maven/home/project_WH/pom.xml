@@ -23,6 +23,7 @@
 	</properties>
 
 	<repositories>
+	
 		<repository>
 			<id>mvn2s</id>
 			<url>https://repo1.maven.org/maven2/</url>
@@ -54,10 +55,24 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
 	<dependencies>
-
+	<dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+         <version>2.10.0.pr3</version>
+      </dependency>
+      <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-core</artifactId>
+         <version>2.10.0.pr3</version>
+      </dependency>
 		<!-- 표준프레임워크 실행환경 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>egovframework.rte</groupId>
 			<artifactId>egovframework.rte.ptl.mvc</artifactId>
