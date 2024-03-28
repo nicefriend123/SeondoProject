@@ -1,11 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<nav class ="nav">
-	<div>
-		<ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-			<li class="nav-item"><a class="nav-link" href="./main.do">탄소지도</a></li>
-			<li class="nav-item"><a class="nav-link" href="./status.do">통계</a></li>
-			<li class="nav-item"><a class="nav-link" href="./fileUpload.do">파일업로드</a></li>
-		</ul>
+	pageEncoding="UTF-8"%>
+<nav class="nav">
+	<div class="align-middle border-bottom border-dark py-2" id="menu">
+		<a id="mapview" class="m-3 p-2"><i class="bi bi-geo-alt fs-5 pe-1"></i>탄소지도</a>
+	</div>
+	<div class="align-middle border-bottom border-dark py-2" id="menu">
+		<a id="fileUpload" class="m-3 p-1"><i class="bi bi-upload fs-5 pe-1"></i>파일 업로드</a>
+	</div>
+	<div class="align-middle border-bottom border-dark py-2" id="menu">
+		<a id="status" class="m-3 p-2"><i class="bi bi-bar-chart-line fs-5 pe-1"></i>통계</a>
 	</div>
 </nav>

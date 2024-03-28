@@ -45,4 +45,10 @@
 		tl_sgg s ON b.sgg_cd = s.sgg_cd
 		WHERE s.sgg_cd = #{sgg};
 	</select>
+	
+	<insert id="uploadFile">
+		
+		
+	</insert>
+	
 </mapper>

@@ -43,4 +43,9 @@ public class ServletImpl extends EgovAbstractServiceImpl implements ServletServi
 		return dao.getGeomSd();
 	}
 
+	@Override
+	public void uploadFile(List<Map<String, Object>> list) {
+		dao.uploadFile(list);
+	}
+
 }

@@ -35,4 +35,8 @@ public class ServletDAO extends EgovComAbstractDAO {
 		return selectList("servlet.getGeomSd");
 	}
 
+	public void uploadFile(List<Map<String, Object>> list) {
+		insert("filUpload.uploadFile", list);
+	}
+
 }

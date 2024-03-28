@@ -23,7 +23,7 @@
 	</properties>
 
 	<repositories>
-	
+		
 		<repository>
 			<id>mvn2s</id>
 			<url>https://repo1.maven.org/maven2/</url>
@@ -56,6 +56,12 @@
 		</repository>
 	</repositories>
 	<dependencies>
+	<!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+         <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.5</version>
+         </dependency>
 	<dependency>
          <groupId>com.fasterxml.jackson.core</groupId>
          <artifactId>jackson-databind</artifactId>

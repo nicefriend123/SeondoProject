@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fileUpload">
+
+	<insert id="uploadFile" parameterType="Map">
+		<foreach collection="list" item="item" index="index" separator=";">
+		INSERT INTO TB_CARBON_A5 (useym,sgg_cd,bjd_cd,usage) VALUES (#{item.useym}, #{item.sgg_cd}, #{item.bjd_cd}, #{item.usage})
+      </foreach>
+	</insert>
+	
+</mapper>

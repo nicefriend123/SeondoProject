@@ -14,4 +14,6 @@ public interface ServletService {
 
 	List<Map<String, Object>> getGeomSd();
 
+	void uploadFile(List<Map<String, Object>> list);
+
 }
