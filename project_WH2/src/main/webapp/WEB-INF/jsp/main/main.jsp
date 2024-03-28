@@ -6,17 +6,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>브이월드 WMTS 배경지도 사용하기 오픈레이어스 3버전 이상</title>
+<!-- jquery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <!-- sweetalert -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
-<!-- CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-
-<!-- 테마 -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-
-<!-- 자바스크립트 -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<!-- jquery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- bootstarp -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <!-- vworld -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
@@ -45,8 +44,9 @@ $(function() {
     view = new ol.View({
         center : ol.proj.transform([ 127.100616, 37.402142 ], 'EPSG:4326', 'EPSG:3857'),
         zoom : 6,
-        maxZoom : 18,
-        minZoom : 4
+        maxZoom : 14,
+        minZoom : 6,
+        extent: ol.proj.transformExtent([112.5, 29.53522956294847, 135, 45.089], 'EPSG:4326', 'EPSG:3857')
     });
 
     map = new ol.Map({
@@ -107,77 +107,21 @@ $(function() {
 </script>
 </head>
 <style>
-.container {
-	border: 1px solid black;
-	width: 75%;
-}
 
-.main {
-	border: 1px solid black;
-	display: flex;
-	margin: 5px;
-}
-
-.subcontainer {
-	
-}
-
-.two {
-	display: flex;
-	margin: 5px;
-}
-
-.header {
-	background: gray;
-	color: white;
-	text-align: center;
-	margin: 5px;
-}
-
-.footer {
-	background: gray;
-	color: white;
-	text-align: center;
-	margin: 5px;
-}
-
-.sub-main{
-	margin: 5px;
-	width: 50%;
-	text-align: center;
-	border: 1px solid black;
-}
-.function {
-    display: flex; /* Flexbox 사용 */
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-}
-
-.nav{
-	border-right: 1px solid black;
-}
-
-.function .nav,
-.function .select {
-    flex: 1;
-}
-
-#map{
-}
 </style>
 <body>
 <header class="bg-primary text-light py-3 ">
   <div class="container text-center">Header</div>
 </header>
-<div class="container-fluid d-flex flex-column m-3" style="height: 100%;">
+<div class="container-fluid d-flex flex-column m-3" style="height: 80%;">
     <div class="row flex-grow-1">
-        <div class="col-md-4 d-flex flex-column">
+        <div class="col-md-4 d-flex flex-column height:80%">
             <div class="row">
                 <div class="col-md-12 border border-dark">
                     <div class="text-center bold fs-4" style="height: 50px;">탄소 공간지도 시스템</div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row vh-80">
                 <div class="col-md-3 border border-dark border-end-0 border-top-0 p-0">
                     <div>
                         <%@ include file="menu.jsp"%>
@@ -187,7 +131,7 @@ $(function() {
             </div>
         </div>
         <div class="col-md-8 p-0">
-            <div id="map" style="height: 966px"></div>
+            <div id="map" style="height:900px;left:0px;top:0px"></div>
         </div>
     </div>
 </div>

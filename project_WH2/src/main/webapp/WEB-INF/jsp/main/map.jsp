@@ -57,6 +57,7 @@ $('#loc').change(function() {
 									//alert('AJAX 요청 성공!' + response);
 									var sggSelect = $("#sggSelect");
 									sggSelect.html("<option>--시/군/구를 선택하세요--</option>");
+									sggSelect.append("<option>전체 선택</option>")
 									for (var i = 0; i < response.length; i++) {
 										var item = response[i];
 										sggSelect.append("<option value='" + item.adm_sect_c + "," + item.x + "," + item.y + ","+ item.area +  "'>"
@@ -79,7 +80,7 @@ $('#loc').change(function() {
 							layer.setVisible(false);
 						}
 					});
-
+					
 					// 선택된 새로운 레이어를 추가하고 보이도록 설정합니다.
 					tl_sggline = new ol.layer.Tile(
 							{
@@ -106,7 +107,12 @@ $('#loc').change(function() {
 											serverType : 'geoserver',
 										})
 							});
+					$('.btn.btn-warning').click(function() {
+				        // 여기에 검색 버튼 클릭 시 실행될 코드 추가
+				        // 예를 들어, 선택된 시/군/구 또는 법정동에 대한 데이터를 가져와서 레이어를 추가하는 코드를 작성할 수 있습니다.
+				        // 레이어를 추가하는 방법은 이미 위의 코드에 구현되어 있습니다.
 					map.addLayer(tl_sggline);
+				    });
 				});
 //시군구 레이어 띄우고 법정동 옵션 띄우기
 $('#sggSelect').change(function() {
@@ -175,7 +181,12 @@ $('#sggSelect').change(function() {
 											serverType : 'geoserver',
 										})
 							});
+					$('.btn.btn-warning').click(function() {
+				        // 여기에 검색 버튼 클릭 시 실행될 코드 추가
+				        // 예를 들어, 선택된 시/군/구 또는 법정동에 대한 데이터를 가져와서 레이어를 추가하는 코드를 작성할 수 있습니다.
+				        // 레이어를 추가하는 방법은 이미 위의 코드에 구현되어 있습니다.
 					map.addLayer(tl_sgg);
+				    });
 				}); // $('#sggSelect').change
 
 //법정동 옵션 띄우고 법정동 레이어 띄우기
@@ -214,7 +225,12 @@ $('#bjdSelect').change(function() {
 											serverType : 'geoserver',
 										})
 							});
+					$('.btn.btn-warning').click(function() {
+				        // 여기에 검색 버튼 클릭 시 실행될 코드 추가
+				        // 예를 들어, 선택된 시/군/구 또는 법정동에 대한 데이터를 가져와서 레이어를 추가하는 코드를 작성할 수 있습니다.
+				        // 레이어를 추가하는 방법은 이미 위의 코드에 구현되어 있습니다.
 					map.addLayer(tl_bjd);
+				    });
 				}); // $('#bjdSelect').change
 });
 		</script>
