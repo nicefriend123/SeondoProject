@@ -44,7 +44,7 @@ $('#loc').change(function() {
 					sggcd2 = sdCd.substring(0,2);
 					//var cql_filter = "sd_cd = '" + sdCd + "'";
 					var cql_filter = "adm_sect_c LIKE '" + sggcd2 + "%'";
-					alert(cql_filter);
+					//alert(cql_filter);
 					$('#bjdSelect').children().remove();
 				    $('#bjdSelect').append('<option>--법정동을 선택하세요--</option>');
 					//alert(loc);

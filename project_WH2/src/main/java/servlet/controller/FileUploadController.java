@@ -32,7 +32,33 @@ public class FileUploadController {
 		return "main/fileUpload";
 	}
 	@RequestMapping(value = "/fileUpload.do", method = RequestMethod.POST)
-	public @ResponseBody void  fileUpload(@RequestParam("file") MultipartFile multi) throws IOException {
+	public @ResponseBody void fileUpload(@RequestParam("uFile") MultipartFile multi) throws IOException {
+	    System.out.println(multi.getOriginalFilename());
+	    System.out.println(multi.getName());
+	    System.out.println(multi.getContentType());
+	    System.out.println(multi.getSize());
+
+	    try (InputStreamReader isr = new InputStreamReader(multi.getInputStream());
+	         BufferedReader br = new BufferedReader(isr)) {
+
+	        String line;
+	        while ((line = br.readLine()) != null) {
+	            Map<String, Object> m = new HashMap<>();
+	            String[] lineArr = line.split("\\|");
+
+	            System.out.println(Arrays.toString(lineArr));
+	            m.put("useym", lineArr[0]); // 사용년월
+	            m.put("sgg_cd", lineArr[3]); // 시군구코드
+	            m.put("bjd_cd", lineArr[4]); // 법정동코드
+	            m.put("usage", lineArr[13] == "" ? 0 : Integer.parseInt(lineArr[13])); // 사용량
+
+	            servletService.uploadFile(Collections.singletonList(m));
+	        }
+	    }
+	}
+
+	@RequestMapping(value = "/fileUpload.do", method = RequestMethod.POST)
+	public @ResponseBody void  fileUpload(@RequestParam("uFile") MultipartFile multi) throws IOException {
 
 		System.out.println(multi.getOriginalFilename());
 		System.out.println(multi.getName());
